@@ -13,6 +13,9 @@ import android.util.Log
 import com.codepath.asynchttpclient.AsyncHttpClient
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler
 import okhttp3.Headers
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import org.json.JSONArray
 
 
 // --------------------------------//
@@ -69,8 +72,16 @@ class NationalParksFragment : Fragment(), OnListFragmentInteractionListener {
                     progressBar.hide()
 
                     // TODO - Parse JSON into Models
+                    val dataJSON = json.jsonObject.get("data") as JSONArray
+                    val parksRawJSON = dataJSON.toString()
 
-                    val models: List<NationalPark> = mutableListOf()
+                    val gson = Gson()
+
+                    val arrayParkType =
+                        object : TypeToken<List<NationalPark>>() {}.type
+
+                    val models: List<NationalPark> =
+                        gson.fromJson(parksRawJSON, arrayParkType)
 
                     recyclerView.adapter =
                         NationalParksRecyclerViewAdapter(
