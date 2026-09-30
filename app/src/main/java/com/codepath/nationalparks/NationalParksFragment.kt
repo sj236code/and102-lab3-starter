@@ -9,12 +9,16 @@ import androidx.core.widget.ContentLoadingProgressBar
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import android.util.Log
+import com.codepath.asynchttpclient.AsyncHttpClient
+import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler
+import okhttp3.Headers
 
 
 // --------------------------------//
 // CHANGE THIS TO BE YOUR API KEY  //
 // --------------------------------//
-private const val API_KEY = "<YOUR-API-KEY-HERE>"
+private const val API_KEY = "dPER6Vd9h7OdBaafpivGJhzJGTOLFRhaQBn4wZeO"
 
 /*
  * The class for the only fragment in the app, which contains the progress bar,
@@ -44,57 +48,58 @@ class NationalParksFragment : Fragment(), OnListFragmentInteractionListener {
      * Updates the RecyclerView adapter with new data.  This is where the
      * networking magic happens!
      */
-    private fun updateAdapter(progressBar: ContentLoadingProgressBar, recyclerView: RecyclerView) {
+    private fun updateAdapter(
+        progressBar: ContentLoadingProgressBar,
+        recyclerView: RecyclerView
+    ) {
         progressBar.show()
 
         // Create and set up an AsyncHTTPClient() here
+        val client = AsyncHttpClient()
 
         // Using the client, perform the HTTP request
+        client["https://developer.nps.gov/api/v1/parks?api_key=$API_KEY",
+            object : JsonHttpResponseHandler() {
 
-        /* Uncomment me once you complete the above sections!
-        {
-            /*
-             * The onSuccess function gets called when
-             * HTTP response status is "200 OK"
-             */
-            override fun onSuccess(
-                statusCode: Int,
-                headers: Headers,
-                json: JsonHttpResponseHandler.JSON
-            ) {
-                // The wait for a response is over
-                progressBar.hide()
+                override fun onSuccess(
+                    statusCode: Int,
+                    headers: Headers,
+                    json: JsonHttpResponseHandler.JSON
+                ) {
+                    progressBar.hide()
 
-                //TODO - Parse JSON into Models
+                    // TODO - Parse JSON into Models
 
-                val models : List<NationalPark> = mutableListOf() // Fix me!
-                recyclerView.adapter = NationalParksRecyclerViewAdapter(models, this@NationalParksFragment)
+                    val models: List<NationalPark> = mutableListOf()
 
-                // Look for this in Logcat:
-                Log.d("NationalParksFragment", "response successful")
-            }
+                    recyclerView.adapter =
+                        NationalParksRecyclerViewAdapter(
+                            models,
+                            this@NationalParksFragment
+                        )
 
-            /*
-             * The onFailure function gets called when
-             * HTTP response status is "4XX" (eg. 401, 403, 404)
-             */
-            override fun onFailure(
-                statusCode: Int,
-                headers: Headers?,
-                errorResponse: String,
-                t: Throwable?
-            ) {
-                // The wait for a response is over
-                progressBar.hide()
-
-                // If the error is not null, log it!
-                t?.message?.let {
-                    Log.e("NationalParksFragment", errorResponse)
+                    Log.d(
+                        "NationalParksFragment",
+                        "response successful"
+                    )
                 }
-            }
-        }]
-        */
 
+                override fun onFailure(
+                    statusCode: Int,
+                    headers: Headers?,
+                    errorResponse: String,
+                    t: Throwable?
+                ) {
+                    progressBar.hide()
+
+                    t?.message?.let {
+                        Log.e(
+                            "NationalParksFragment",
+                            errorResponse
+                        )
+                    }
+                }
+            }]
     }
 
     /*
